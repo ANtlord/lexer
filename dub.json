@@ -1,0 +1,9 @@
+{
+	"name": "lexer",
+	"authors": [
+		"antlord"
+	],
+	"description": "A minimal D application.",
+	"copyright": "Copyright © 2017, antlord",
+	"license": "proprietary"
+}
