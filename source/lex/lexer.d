@@ -35,6 +35,7 @@ struct Lexer {
 	string sourceCode;
 	ulong offset = 0;
 
+	/// Skip spaces. Return true if there is rest of symbols in file.
 	auto skipSpaces() {
 		while(sourceCode[offset].isIn(spaces)) {
 			++offset;
@@ -44,6 +45,7 @@ struct Lexer {
 		return true;
 	}
 
+	/// Return lexem list from file.
 	auto parse() {
 		Lexem[] lexemList;
 		while (!this.isInTheEnd) {
@@ -96,12 +98,7 @@ struct Lexer {
 		auto lexem_regex = matchedDefinition.repr;
 		auto captures = matchFirst(sourceCode[offset .. $], lexem_regex);
 		auto lexem_value = captures.hit;
-		return Lexem(
-			matchedDefinition.kind,
-			lexem_value.dup,
-			offset,
-			lexem_value.length,
-		);
+		return Lexem(matchedDefinition.kind, lexem_value.dup, offset, lexem_value.length);
 	}
 
 	/// Return true if static lexem definition is matched.
