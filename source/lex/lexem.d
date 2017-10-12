@@ -25,14 +25,14 @@ struct Lexem {
 		kind = definition.kind;
 		val = definition.repr;
 		len = definition.length;
-		offset = offset;
+		this.offset = offset;
 	}
 
 	this(Kind kind, string val, ulong offset, ulong len) {
-		kind = kind;
-		val = val;
-		offset = offset;
-		len = len;
+		this.kind = kind;
+		this.val = val;
+		this.offset = offset;
+		this.len = len;
 	}
 
 	Kind kind;
@@ -59,7 +59,7 @@ auto staticLexemDef(T)(Kind kind, T repr, bool isKeyword = false) {
 }
 
 struct DynanicLexemDef(T)
-	if(is(T == Regex!char))
+	if(is(T == string))
 {
 	mixin ALexemDef!T;
 }

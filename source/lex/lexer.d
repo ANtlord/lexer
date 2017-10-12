@@ -8,19 +8,19 @@ import std.regex;
 import std.stdio;
 
 immutable staticLexemDefs = [
-	staticLexemDef(Kind.var, "auto", true),
-	staticLexemDef(Kind.print, "print", true),
 	staticLexemDef(Kind.assign, "="),
 	staticLexemDef(Kind.plus, "+"),
-	staticLexemDef(Kind.minus, "minus"),
 	staticLexemDef(Kind.multiply, "*"),
 	staticLexemDef(Kind.divide, "/"),
 	staticLexemDef(Kind.semicolon, ";"),
+	staticLexemDef(Kind.var, "auto", true),
+	staticLexemDef(Kind.print, "print", true),
+	staticLexemDef(Kind.minus, "minus"),
 ];
 
-auto dynamicLexemDefs = [
-	dynanicLexemDef(Kind.identifier, r"[a-zA-Z_][a-zA-Z0-9_]*".regex),
-	dynanicLexemDef(Kind.number, r"(0|[1-9][0-9]*)*".regex),
+immutable dynamicLexemDefs = [
+	dynanicLexemDef(Kind.identifier, r"^[a-zA-Z_][a-zA-Z0-9_]*"),
+	dynanicLexemDef(Kind.number, r"^(0|[1-9][0-9]*)"),
 ];
 
 immutable spaces = [' ', '\r', '\n', '\t'];
@@ -35,33 +35,40 @@ struct Lexer {
 	string sourceCode;
 	ulong offset = 0;
 
-	auto skipSpaces() const {
-		ulong counter = 0;
-		while(sourceCode[offset + counter].isIn(spaces))
-			++counter;
-		return offset + counter;
+	auto skipSpaces() {
+		while(sourceCode[offset].isIn(spaces)) {
+			++offset;
+			if (this.isInTheEnd)
+				return false;
+		}
+		return true;
 	}
 
-	void parse() {
-		while (this.isNotInTheEnd) {
-			offset = skipSpaces;
+	auto parse() {
+		Lexem[] lexemList;
+		while (!this.isInTheEnd) {
+			if(!skipSpaces)
+				return lexemList;
 			try {
 				auto lexem = parseStaticLexem;
 				offset += lexem.len;
+				lexemList ~= lexem;
 			} catch(LexemNotFound e) {
 				try {
 					auto lexem = parseDynamicLexem;
 					offset += lexem.len;
+					lexemList ~= lexem;
 				} catch(LexemNotFound e) {
 					writeln("I can't find any lexem definition from position", offset);
 					throw new LexemNotFound;
 				}
 			}
 		}
+		return lexemList;
 	}
 
-	bool isNotInTheEnd() const {
-		return offset < sourceCode.length;
+	bool isInTheEnd() const {
+		return offset >= sourceCode.length;
 	}
 
 	/// Return lexem if it was found. Kind of the lexem is kind of a static lexem definition.
@@ -75,7 +82,10 @@ struct Lexer {
 		return Lexem(matchedDefinition, offset);
 	}
 
-	Lexem parseDynamicLexem() const {
+	Lexem parseDynamicLexem() const
+	out(lexem) {
+		assert(lexem.len > 0, "lexem.value: '%s', lexem.kind: %s".format(lexem.val, lexem.kind));
+	} do {
 		auto matchedDefinitions = dynamicLexemDefs.filter!(a => isMatchedLexemDef(a)).array;
 		assert(matchedDefinitions.length < 2);
 		if (matchedDefinitions.length == 0) {
@@ -88,7 +98,7 @@ struct Lexer {
 		auto lexem_value = captures.hit;
 		return Lexem(
 			matchedDefinition.kind,
-			lexem_value,
+			lexem_value.dup,
 			offset,
 			lexem_value.length,
 		);
@@ -97,15 +107,16 @@ struct Lexer {
 	/// Return true if static lexem definition is matched.
 	bool isMatchedLexemDef(in StaticLexemDef!string lexemDefinition) const {
 		auto end = offset + lexemDefinition.length;
+		if (end >= sourceCode.length) {
+			return false;
+		}
 		return sourceCode[offset .. end] == lexemDefinition.repr;
 	}
 
 	/// Return true if dynamic lexem definition is matched.
-	bool isMatchedLexemDef(DynanicLexemDef!(Regex!char) lexemDefinition) const {
+	bool isMatchedLexemDef(in DynanicLexemDef!(string) lexemDefinition) const {
 		auto lexem_regex = lexemDefinition.repr;
-		writeln("Incoming code for dynamic lexem '", sourceCode[offset .. $], "'");
 		auto captures = matchFirst(sourceCode[offset .. $], lexem_regex);
-		// writeln("Matched part of source code '%s'".format(captures.hit));
 		return !captures.empty;
 	}
 }

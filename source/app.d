@@ -10,8 +10,11 @@ import lex;
 void main()
 {
 	auto sourceCode = readText("testfile.txt");
-	// auto lexer = Lexer(sourceCode);
-	// lexer.parse;
+	auto lexer = Lexer(sourceCode);
+	auto lexems = lexer.parse;
+	foreach(l; lexems) {
+		writeln(l);
+	}
 
 	// ulong offset = 0;
 	// auto sourceCodeLen = sourceCode.length;
@@ -19,14 +22,20 @@ void main()
 
 	// }
 	// auto r = r"(0|[1-9][0-9]*)".regex;
-	auto r = r"\d+".regex;
-	auto data = "var3dor2 = 1;";
-	auto space_position = data.indexOf(' ');
-	auto caps = matchFirst(data[0 .. space_position], r);
-	if(!caps.empty) {
-		auto resText = caps.hit;
-		writeln("hit: '%s'; length: %d".format(resText, resText.length));
-	}
+	// auto r = r"\d+".regex;
+	// auto r = r"^[a-zA-Z_][a-zA-Z0-9_]*";
+	// auto data = "var3dor2 = 1;";
+	// // auto space_position = data.indexOf(' ');
+	// auto caps = matchFirst(data[0 .. $], r);
+	// if(!caps.empty) {
+		// auto resText = caps.hit;
+		// writeln("hit: '%s'; length: %d".format(resText, resText.length));
+	// }
+	// auto caps2 = matchFirst(data[0 .. $], r);
+	// if(!caps2.empty) {
+		// auto resText = caps2.hit;
+		// writeln("hit: '%s'; length: %d".format(resText, resText.length));
+	// }
 
 	// auto res = matchFirst(sourceCode[offset .. $], r);
 
