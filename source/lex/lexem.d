@@ -1,7 +1,7 @@
 /**
  * Provides abstractions represents lexems.
  */
-module lexem;
+module lex.lexem;
 import std.regex;
 import std.format;
 
@@ -21,10 +21,24 @@ enum Kind
 }
 
 struct Lexem {
+	this(StaticLexemDef!string definition, ulong offset) {
+		kind = definition.kind;
+		val = definition.repr;
+		len = definition.length;
+		offset = offset;
+	}
+
+	this(Kind kind, string val, ulong offset, ulong len) {
+		kind = kind;
+		val = val;
+		offset = offset;
+		len = len;
+	}
+
 	Kind kind;
 	string val;
-	uint offset;
-	uint len;
+	ulong offset;
+	ulong len;
 }
 
 auto dynanicLexemDef(T)(Kind kind, T repr) {
@@ -54,6 +68,9 @@ struct StaticLexemDef(T)
 	if(is(T == string))
 {
 	bool isKeyword;
+	ulong length() const {
+		return repr.length;
+	}
 	mixin ALexemDef!T;
 }
 
