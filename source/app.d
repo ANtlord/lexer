@@ -5,6 +5,7 @@ import std.stdio;
 import std.string;
 
 import lex;
+import parse;
 
 
 void main()
@@ -14,6 +15,11 @@ void main()
 	auto lexems = lexer.parse;
 	foreach(l; lexems)
 		writeln(l);
+	writeln("");
+	auto parser = Parser(lexems);
+	auto nodes = parser.parse;
+	// foreach(n; nodes)
+		// writeln(n);
 
 	// ulong offset = 0;
 	// auto sourceCodeLen = sourceCode.length;
