@@ -3,25 +3,10 @@ module lex.lexer;
 import std.array;
 import std.algorithm;
 import std.string;
-import lex.lexem;
 import std.regex;
 import std.stdio;
 
-immutable staticLexemDefs = [
-	staticLexemDef(Kind.assign, "="),
-	staticLexemDef(Kind.plus, "+"),
-	staticLexemDef(Kind.multiply, "*"),
-	staticLexemDef(Kind.divide, "/"),
-	staticLexemDef(Kind.semicolon, ";"),
-	staticLexemDef(Kind.var, "auto", true),
-	staticLexemDef(Kind.print, "print", true),
-	staticLexemDef(Kind.minus, "minus"),
-];
-
-immutable dynamicLexemDefs = [
-	dynanicLexemDef(Kind.identifier, r"^[a-zA-Z_][a-zA-Z0-9_]*"),
-	dynanicLexemDef(Kind.number, r"^(0|[1-9][0-9]*)"),
-];
+import lex.lexem;
 
 immutable spaces = [' ', '\r', '\n', '\t'];
 

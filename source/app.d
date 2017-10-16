@@ -12,9 +12,8 @@ void main()
 	auto sourceCode = readText("testfile.txt");
 	auto lexer = Lexer(sourceCode);
 	auto lexems = lexer.parse;
-	foreach(l; lexems) {
+	foreach(l; lexems)
 		writeln(l);
-	}
 
 	// ulong offset = 0;
 	// auto sourceCodeLen = sourceCode.length;

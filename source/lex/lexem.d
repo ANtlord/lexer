@@ -74,6 +74,22 @@ struct StaticLexemDef(T)
 	mixin ALexemDef!T;
 }
 
+immutable staticLexemDefs = [
+	staticLexemDef(Kind.assign, "="),
+	staticLexemDef(Kind.plus, "+"),
+	staticLexemDef(Kind.multiply, "*"),
+	staticLexemDef(Kind.divide, "/"),
+	staticLexemDef(Kind.semicolon, ";"),
+	staticLexemDef(Kind.var, "auto", true),
+	staticLexemDef(Kind.print, "print", true),
+	staticLexemDef(Kind.minus, "minus"),
+];
+
+immutable dynamicLexemDefs = [
+	dynanicLexemDef(Kind.identifier, r"^[a-zA-Z_][a-zA-Z0-9_]*"),
+	dynanicLexemDef(Kind.number, r"^(0|[1-9][0-9]*)"),
+];
+
 private:
 
 mixin template ALexemDef(T)
