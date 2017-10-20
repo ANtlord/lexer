@@ -57,19 +57,15 @@ struct Parser {
 
 	/// assignEx: var identifier assign expr
 	auto parseAssignEx() {
-		writeln("parse assign");
 		auto lexem = _lexems[++_currentLexemCount];
-		writeln(lexem);
 		_currentLexemCount += 2; // skip assign
 		auto expr = parseEx;
 		auto node = new AssignNode(lexem, expr);
-		writeln(expr, _currentLexemCount);
 		return node;
 	}
 
-	/// expr : binaryEx | token
+	/// expr : token | binaryEx
 	ExprNode parseEx() {
-		writeln("parseEx");
 		if (auto res = parseBinaryEx)
 			return res;
 		else if(auto res = parseToken)
@@ -81,14 +77,12 @@ struct Parser {
 	/// token : number | identifier
 	auto parseToken() {
 		auto lexem = _lexems[_currentLexemCount];
-		writeln(lexem);
 		return new TokenNode(lexem);
 	}
-
+	
 	/// multiplyEx:
-	///		binaryEx multiply binaryEx |
-	///		token multiply binaryEx |
-	///		binaryEx multiply token |
+	///		token multiply multiplyEx |
+	///		token multiply addEx |
 	///		token multiply token
 	auto parseMultiply() {
 		auto currentLexemCountBackup = _currentLexemCount;
@@ -97,29 +91,39 @@ struct Parser {
 			_currentLexemCount = currentLexemCountBackup;
 			return null;
 		}
-		auto left = parseEx;
+		auto left = parseToken;
 		_currentLexemCount += 2;
-		auto right = parseEx;
-		return new MultiplyNode(left, right);
+		if(auto right = parseMultiply)
+			return new MultiplyNode(left, right);
+		if(auto right = parseAdd)
+			return new MultiplyNode(left, right);
+		else if (auto right = parseToken)
+			return new MultiplyNode(left, right);
+		_currentLexemCount = currentLexemCountBackup;
+		return null;
 	}
 
 	/// addEx:
-	///		binaryEx plus binaryEx |
-	///		token plus binaryEx |
-	///		binaryEx plus token |
+	///		token plus addEx |
+	///		token plus multiply |
 	///		token plus token
 	auto parseAdd() {
-		writeln("parseAdd");
 		auto currentLexemCountBackup = _currentLexemCount;
-		auto multiply = _lexems[_currentLexemCount + 1];
-		if (multiply.kind != Kind.plus) {
+		auto plus = _lexems[_currentLexemCount + 1];
+		if (plus.kind != Kind.plus) {
 			_currentLexemCount = currentLexemCountBackup;
 			return null;
 		}
-		auto left = parseEx;
+		auto left = parseToken;
 		_currentLexemCount += 2;
-		auto right = parseEx;
-		return new AddNode(left, right);
+		if(auto right = parseAdd)
+			return new AddNode(left, right);
+		if(auto right = parseMultiply)
+			return new AddNode(left, right);
+		else if (auto right = parseToken)
+			return new AddNode(left, right);
+		_currentLexemCount = currentLexemCountBackup;
+		return null;
 	}
 
 	/// binaryEx: addEx | multiplyEx
