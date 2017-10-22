@@ -2,7 +2,6 @@ module parse.ast;
 import lex;
 
 abstract class Node {
-	void eval();
 }
 
 class ExprNode : Node {
